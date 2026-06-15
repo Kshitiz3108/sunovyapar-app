@@ -35,11 +35,16 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
+      - name: Clear old files on VM
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+            "rm -rf /var/www/app/* /var/www/app/.[!.]* 2>/dev/null || true"
+
       - name: Deploy out/ folder to VM
         run: |
-          rsync -avz --delete \
-            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
-            out/ \
+          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+            -r out/* \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/app/
 
       - name: Reload nginx
