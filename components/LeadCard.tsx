@@ -22,10 +22,14 @@ export function LeadCard({
   onSelect?: (id: string) => void;
 }) {
   const name = displayName(lead);
-  const products = parseProducts(lead.products);
+  const productsRaw = parseProducts(lead.products);
+  const productItems = productsRaw
+    ? productsRaw.split(",").map((s) => s.trim()).filter(Boolean)
+    : [];
   const sc = statusClasses(lead.status);
   const wa = waLink(lead);
   const showWa = lead.status === "serious" || lead.status === "pending";
+  const showBottom = !!(lead.location || lead.amount || (showWa && wa));
 
   return (
     <article
@@ -65,46 +69,72 @@ export function LeadCard({
         ) : null}
       </div>
 
-      {products ? (
-        <div className="mt-3 text-[14.5px] text-terracotta-dark font-medium">
-          {products}
-        </div>
+      {productItems.length > 0 ? (
+        <ul className="mt-3 space-y-1.5 list-none">
+          {productItems.map((item, i) => (
+            <li
+              key={i}
+              className="flex gap-1.5 items-baseline text-[13.5px] text-terracotta-dark pl-2.5 border-l-2 border-terracotta/40"
+            >
+              <ProductLine item={item} />
+            </li>
+          ))}
+        </ul>
       ) : null}
 
       {lead.order_summary ? (
         <div className="mt-2 quote-box">{lead.order_summary}</div>
       ) : null}
 
-      <div className="mt-3 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3 text-[12.5px] text-muted min-w-0">
-          {lead.location ? (
-            <span className="inline-flex items-center gap-1 truncate">
-              <span aria-hidden>📍</span>
-              <span className="truncate">{lead.location}</span>
-            </span>
-          ) : null}
-          {lead.amount ? (
-            <span className="inline-flex items-center gap-1">
-              <span aria-hidden>₹</span>
-              {lead.amount}
-            </span>
+      {showBottom ? (
+        <div className="mt-3 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 text-[12.5px] text-muted min-w-0">
+            {lead.location ? (
+              <span className="inline-flex items-center gap-1 truncate">
+                <span aria-hidden>📍</span>
+                <span className="truncate">{lead.location}</span>
+              </span>
+            ) : null}
+            {lead.amount ? (
+              <span className="inline-flex items-center gap-1">
+                <span aria-hidden>₹</span>
+                {lead.amount}
+              </span>
+            ) : null}
+          </div>
+          {showWa && wa ? (
+            <a
+              href={wa}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="shrink-0 inline-flex items-center gap-1.5 bg-wa hover:bg-wa-dark text-white text-[13px] font-medium px-3 py-2 rounded-full transition-colors"
+            >
+              <WhatsAppGlyph />
+              WhatsApp karo
+            </a>
           ) : null}
         </div>
-        {showWa && wa ? (
-          <a
-            href={wa}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            className="shrink-0 inline-flex items-center gap-1.5 bg-wa hover:bg-wa-dark text-white text-[13px] font-medium px-3 py-2 rounded-full transition-colors"
-          >
-            <WhatsAppGlyph />
-            WhatsApp karo
-          </a>
-        ) : null}
-      </div>
+      ) : null}
     </article>
   );
+}
+
+function ProductLine({ item }: { item: string }) {
+  const trimmed = item.trim();
+  // Bold the leading number + its unit word (e.g. "5 carton" in "5 carton Mangalore style")
+  const m = trimmed.match(/^(\d[\d.,]*)(\s+\S+)?(.*)?$/);
+  if (m) {
+    const qty = m[1] + (m[2] || "");
+    const rest = (m[3] || "").trim();
+    return (
+      <>
+        <span className="font-bold">{qty}</span>
+        {rest ? <span className="ml-0.5">{rest}</span> : null}
+      </>
+    );
+  }
+  return <span>{trimmed}</span>;
 }
 
 function WhatsAppGlyph() {
