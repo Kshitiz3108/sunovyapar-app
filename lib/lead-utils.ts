@@ -1,5 +1,76 @@
 import { Lead, LeadStatus } from "./types";
 
+// Returns an estimated rupee value for the order, or null if no product could be
+// confidently matched to a catalogue rate. Never returns 0 — unmatched items are skipped.
+export function estimateOrderValue(
+  productsField: unknown,
+  catalogue: Array<{ name: string; spoken?: string; rate?: string }>,
+): number | null {
+  const raw = parseProducts(productsField);
+  if (!raw) return null;
+
+  const items = raw.split(",").map((s) => s.trim()).filter(Boolean);
+  if (items.length === 0) return null;
+
+  const rateEntries = catalogue.flatMap((c) => {
+    if (!c.rate) return [];
+    const rate = parseRateNumeral(c.rate);
+    if (rate == null) return [];
+    const patterns = buildMatchPatterns(c.name, c.spoken);
+    if (patterns.length === 0) return [];
+    return [{ patterns, rate }];
+  });
+
+  let total = 0;
+  let matchedCount = 0;
+
+  for (const item of items) {
+    const { qty, rest } = splitItemQtyRest(item);
+    if (qty == null || qty <= 0 || !rest) continue;
+    const normRest = normStr(rest);
+    for (const entry of rateEntries) {
+      if (entry.patterns.some((p) => normRest.includes(p))) {
+        total += qty * entry.rate;
+        matchedCount++;
+        break;
+      }
+    }
+  }
+
+  return matchedCount > 0 ? Math.round(total) : null;
+}
+
+function normStr(s: string): string {
+  return s.toLowerCase().replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
+}
+
+function parseRateNumeral(rateStr: string): number | null {
+  const m = rateStr.match(/[\d,]+/);
+  if (!m) return null;
+  const n = parseInt(m[0].replace(/,/g, ""), 10);
+  return isNaN(n) ? null : n;
+}
+
+function splitItemQtyRest(item: string): { qty: number | null; rest: string } {
+  const m = item.trim().match(/^(\d[\d.,]*)(?:\s+(.+))?$/);
+  if (!m) return { qty: null, rest: item.trim() };
+  const qty = parseFloat(m[1].replace(/,/g, ""));
+  return { qty: isNaN(qty) ? null : qty, rest: (m[2] || "").trim() };
+}
+
+// Builds a set of normalised substrings that identify a catalogue item.
+// Matching is disjunctive: any one pattern in the item rest text is enough.
+function buildMatchPatterns(name: string, spoken?: string): string[] {
+  const patterns = new Set<string>();
+  const combined = normStr(name + " " + (spoken || ""));
+  // Individual long tokens (≥4 chars) are reliable discriminators
+  combined.split(" ").filter((t) => t.length >= 4).forEach((t) => patterns.add(t));
+  // Full normalised name as a substring (catches short names like "50-50" → "50 50")
+  const normName = normStr(name);
+  if (normName.length >= 4) patterns.add(normName);
+  return [...patterns];
+}
+
 export function parseProducts(productsField: unknown): string | null {
   if (productsField == null) return null;
 

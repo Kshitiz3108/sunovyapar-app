@@ -3,12 +3,14 @@
 import { Lead } from "@/lib/types";
 import {
   displayName,
+  estimateOrderValue,
   parseProducts,
   relativeTimeHi,
   statusClasses,
   statusLabel,
   waLink,
 } from "@/lib/lead-utils";
+import { CATALOGUE } from "@/lib/seed";
 
 export function LeadCard({
   lead,
@@ -26,6 +28,7 @@ export function LeadCard({
   const productItems = productsRaw
     ? productsRaw.split(",").map((s) => s.trim()).filter(Boolean)
     : [];
+  const estimate = estimateOrderValue(lead.products, CATALOGUE);
   const sc = statusClasses(lead.status);
   const wa = waLink(lead);
   const showWa = lead.status === "serious" || lead.status === "pending";
@@ -80,6 +83,12 @@ export function LeadCard({
             </li>
           ))}
         </ul>
+      ) : null}
+
+      {estimate != null ? (
+        <div className="mt-1.5 text-[11.5px] text-muted italic">
+          Anumaanit: ~₹{estimate.toLocaleString("en-IN")}
+        </div>
       ) : null}
 
       {lead.order_summary ? (
