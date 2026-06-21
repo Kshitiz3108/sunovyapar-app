@@ -4,6 +4,7 @@ import { Lead } from "@/lib/types";
 import {
   displayName,
   estimateOrderValue,
+  formatPhone,
   parseProducts,
   relativeTimeHi,
   statusClasses,
@@ -68,7 +69,9 @@ export function LeadCard({
           {name}
         </div>
         {lead.caller_name && lead.caller_number ? (
-          <div className="text-[12.5px] text-muted">{lead.caller_number}</div>
+          <div className="text-[12.5px] text-muted">
+            {formatPhone(lead.caller_number) ?? lead.caller_number}
+          </div>
         ) : null}
       </div>
 

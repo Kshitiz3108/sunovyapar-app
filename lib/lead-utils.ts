@@ -114,8 +114,8 @@ export function parseProducts(productsField: unknown): string | null {
 export function displayName(lead: Pick<Lead, "caller_name" | "caller_number">): string {
   const name = lead.caller_name?.trim();
   if (name) return name;
-  const num = lead.caller_number?.trim();
-  if (num) return num;
+  const formatted = formatPhone(lead.caller_number);
+  if (formatted) return formatted;
   return "Unknown caller";
 }
 
@@ -194,14 +194,35 @@ export function statusClasses(s: LeadStatus | null | undefined): {
   }
 }
 
+// Returns only digits in E.164 form (no +), e.g. "919876543210".
+// 10-digit inputs get "91" prepended; 11-digit starting with "0" strips the zero first.
+export function normalizePhone(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  const digits = raw.replace(/\D/g, "");
+  if (!digits) return null;
+  if (digits.length === 10) return "91" + digits;
+  if (digits.length === 11 && digits.startsWith("0")) return "91" + digits.slice(1);
+  return digits;
+}
+
+// Returns "+91 XXXXX XXXXX" for Indian mobile numbers, or a best-effort "+..." otherwise.
+export function formatPhone(raw: string | null | undefined): string | null {
+  const digits = normalizePhone(raw);
+  if (!digits) return null;
+  if (digits.length === 12 && digits.startsWith("91")) {
+    const local = digits.slice(2);
+    return `+91 ${local.slice(0, 5)} ${local.slice(5)}`;
+  }
+  return "+" + digits;
+}
+
 export function waLink(lead: Lead): string | null {
-  const num = (lead.caller_number || "").replace(/[^\d+]/g, "");
-  if (!num) return null;
-  const cleaned = num.startsWith("+") ? num.slice(1) : num;
+  const digits = normalizePhone(lead.caller_number);
+  if (!digits) return null;
   const who = lead.caller_name?.trim() || "ji";
   const summary = lead.order_summary?.trim() || "Aapka order confirm karna tha.";
   const msg = `Namaste ${who} 🙏\n\nShree Ram Distributors se. Aapne abhi humari AI assistant Ishita se baat ki thi.\n\nOrder: ${summary}\n\nDelivery ka time aur address confirm kar dijiye please.`;
-  return `https://wa.me/${cleaned}?text=${encodeURIComponent(msg)}`;
+  return `https://wa.me/${digits}?text=${encodeURIComponent(msg)}`;
 }
 
 export type ChatLine = { role: "assistant" | "user" | "system"; text: string };

@@ -4,6 +4,7 @@ import { Lead } from "@/lib/types";
 import {
   displayName,
   formatDuration,
+  formatPhone,
   parseProducts,
   parseTranscript,
   relativeTimeHi,
@@ -51,7 +52,9 @@ export function LeadDetail({
             {name}
           </div>
           {lead.caller_name && lead.caller_number ? (
-            <div className="text-[13px] text-muted">{lead.caller_number}</div>
+            <div className="text-[13px] text-muted">
+              {formatPhone(lead.caller_number) ?? lead.caller_number}
+            </div>
           ) : null}
         </div>
         {onClose ? (
