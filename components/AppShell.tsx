@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ReactNode } from "react";
-import { BUSINESS, PLATFORM } from "@/lib/brand";
+import { BUSINESS } from "@/lib/brand";
 
 type NavItem = {
   href: string;
@@ -150,8 +150,13 @@ export function AppShell({ children }: { children: ReactNode }) {
             <div className="font-display text-[18px] leading-tight text-ink truncate">
               {BUSINESS.name}
             </div>
-            <div className="text-[11px] text-muted mt-0.5">
-              powered by {PLATFORM.name}
+            <div className="text-[11px] text-muted mt-0.5 flex items-center gap-1">
+              <span>powered by</span>
+              <img
+                src="/assets/sunovyapar-logo.jpg"
+                alt="SunoVyapar"
+                className="h-[14px] w-auto inline-block"
+              />
             </div>
           </div>
         </div>
@@ -197,9 +202,11 @@ export function AppShell({ children }: { children: ReactNode }) {
               {BUSINESS.name}
             </div>
           </div>
-          <span className="text-[10.5px] text-muted/80 shrink-0">
-            powered by {PLATFORM.name}
-          </span>
+          <img
+            src="/assets/sunovyapar-logo.jpg"
+            alt="SunoVyapar"
+            className="h-[18px] w-auto shrink-0 opacity-70"
+          />
         </header>
         <main className="flex-1 pb-[84px] lg:pb-0">{children}</main>
       </div>

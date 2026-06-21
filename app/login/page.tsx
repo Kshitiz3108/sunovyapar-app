@@ -2,7 +2,6 @@
 
 import { FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { PLATFORM } from "@/lib/brand";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -16,15 +15,18 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center bg-cream px-6 py-10">
       <div className="w-full max-w-[380px] flex flex-col items-center">
-        {/* Generic platform login */}
-        <div className="font-display text-[30px] leading-none text-ink tracking-tight">
-          Suno<span className="text-terracotta">Vyapar</span>
-        </div>
-        <div className="mt-2 text-[13px] text-muted text-center">
+        {/* Platform mark — small and secondary, full image de-emphasised by size */}
+        <img
+          src="/assets/sunovyapar-logo.jpg"
+          alt="SunoVyapar"
+          className="w-[140px] select-none"
+          draggable={false}
+        />
+        <div className="mt-1 text-[13px] text-muted text-center">
           Apne business mein login karo
         </div>
 
-        <form onSubmit={handleSubmit} className="w-full mt-8 space-y-3">
+        <form onSubmit={handleSubmit} className="w-full mt-7 space-y-3">
           <div>
             <label className="block text-[12.5px] text-ink-soft mb-1.5 ml-1">
               Phone ya username
@@ -55,12 +57,6 @@ export default function LoginPage() {
             Login karo
           </button>
         </form>
-      </div>
-
-      {/* Quiet platform frame */}
-      <div className="mt-10 text-[11.5px] text-muted/70">
-        powered by{" "}
-        <span className="font-medium text-ink-soft">{PLATFORM.name}</span>
       </div>
     </div>
   );

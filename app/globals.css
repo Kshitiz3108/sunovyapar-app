@@ -153,6 +153,14 @@ body {
   animation: splash-in 600ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+@keyframes logo-fade {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+.splash-logo {
+  animation: logo-fade 700ms ease-out both;
+}
+
 @keyframes splash-bounce {
   0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
   40% { transform: scale(1); opacity: 1; }
