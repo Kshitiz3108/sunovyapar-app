@@ -3,12 +3,16 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ReactNode } from "react";
+import { BUSINESS, PLATFORM } from "@/lib/brand";
 
 type NavItem = {
   href: string;
   label: string;
   icon: ReactNode;
 };
+
+// Splash and login stand alone — no nav chrome.
+const BARE_ROUTES = ["/", "/login"];
 
 function IconLeads() {
   return (
@@ -111,7 +115,7 @@ function IconStock() {
 }
 
 const NAV: NavItem[] = [
-  { href: "/", label: "Leads", icon: <IconLeads /> },
+  { href: "/dashboard", label: "Leads", icon: <IconLeads /> },
   { href: "/customers", label: "Customers", icon: <IconCustomers /> },
   { href: "/catalogue", label: "Catalogue", icon: <IconCatalogue /> },
   { href: "/agent", label: "Agent", icon: <IconAgent /> },
@@ -119,23 +123,34 @@ const NAV: NavItem[] = [
 ];
 
 function isActive(pathname: string, href: string) {
-  if (href === "/") return pathname === "/";
-  return pathname.startsWith(href);
+  return pathname === href || pathname.startsWith(href + "/");
 }
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname() || "/";
 
+  // Splash + login render without the app chrome.
+  if (BARE_ROUTES.includes(pathname)) {
+    return <>{children}</>;
+  }
+
   return (
     <div className="min-h-screen flex bg-cream">
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex flex-col w-[230px] shrink-0 border-r border-line bg-cream sticky top-0 h-screen">
-        <div className="px-5 pt-6 pb-5">
-          <div className="font-display text-[22px] leading-none text-ink">
-            SunoVyapar
+        <div className="px-5 pt-6 pb-5 flex items-center gap-3">
+          <div className="h-10 w-10 rounded-xl bg-terracotta text-white flex items-center justify-center shrink-0">
+            <span className="font-display devnagri text-[15px] leading-none">
+              {BUSINESS.monogram}
+            </span>
           </div>
-          <div className="text-[12.5px] text-muted mt-1">
-            Shree Ram Distributors
+          <div className="min-w-0">
+            <div className="font-display text-[18px] leading-tight text-ink truncate">
+              {BUSINESS.name}
+            </div>
+            <div className="text-[11px] text-muted mt-0.5">
+              powered by {PLATFORM.name}
+            </div>
           </div>
         </div>
         <nav className="flex-1 px-3 py-2 space-y-1">
@@ -168,6 +183,22 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       {/* Main */}
       <div className="flex-1 flex flex-col min-w-0">
+        {/* Mobile brand bar — tenant prominent, platform quiet */}
+        <header className="lg:hidden sticky top-0 z-20 flex items-center gap-2.5 px-4 py-3 border-b border-line bg-cream/95 backdrop-blur">
+          <div className="h-8 w-8 rounded-lg bg-terracotta text-white flex items-center justify-center shrink-0">
+            <span className="font-display devnagri text-[12px] leading-none">
+              {BUSINESS.monogram}
+            </span>
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="font-display text-[16px] leading-none text-ink truncate">
+              {BUSINESS.name}
+            </div>
+          </div>
+          <span className="text-[10.5px] text-muted/80 shrink-0">
+            powered by {PLATFORM.name}
+          </span>
+        </header>
         <main className="flex-1 pb-[84px] lg:pb-0">{children}</main>
       </div>
 
