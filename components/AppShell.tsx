@@ -127,7 +127,9 @@ function isActive(pathname: string, href: string) {
 }
 
 export function AppShell({ children }: { children: ReactNode }) {
-  const pathname = usePathname() || "/";
+  // trailingSlash is on, so usePathname() yields e.g. "/login/" — normalize it.
+  const raw = usePathname() || "/";
+  const pathname = raw.length > 1 ? raw.replace(/\/+$/, "") : raw;
 
   // Splash + login render without the app chrome.
   if (BARE_ROUTES.includes(pathname)) {

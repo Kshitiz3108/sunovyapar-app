@@ -2,7 +2,7 @@
 
 import { FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { BUSINESS, PLATFORM } from "@/lib/brand";
+import { PLATFORM } from "@/lib/brand";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -16,17 +16,12 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center bg-cream px-6 py-10">
       <div className="w-full max-w-[380px] flex flex-col items-center">
-        {/* Business identity — the tenant logging into their space */}
-        <div className="h-20 w-20 rounded-2xl bg-terracotta text-white flex items-center justify-center shadow-md">
-          <span className="font-display devnagri text-[26px] leading-none">
-            {BUSINESS.monogram}
-          </span>
+        {/* Generic platform login */}
+        <div className="font-display text-[30px] leading-none text-ink tracking-tight">
+          Suno<span className="text-terracotta">Vyapar</span>
         </div>
-        <h1 className="mt-5 font-display text-[28px] leading-tight text-ink text-center">
-          {BUSINESS.name}
-        </h1>
-        <div className="mt-1 text-[13px] text-muted text-center">
-          {BUSINESS.tagline} · {BUSINESS.location}
+        <div className="mt-2 text-[13px] text-muted text-center">
+          Apne business mein login karo
         </div>
 
         <form onSubmit={handleSubmit} className="w-full mt-8 space-y-3">
@@ -60,10 +55,6 @@ export default function LoginPage() {
             Login karo
           </button>
         </form>
-
-        <div className="mt-5 text-[12px] text-muted text-center">
-          Apna dhanda dekho — leads, calls, sab ek jagah.
-        </div>
       </div>
 
       {/* Quiet platform frame */}
